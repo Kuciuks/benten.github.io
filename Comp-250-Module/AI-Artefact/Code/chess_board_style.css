@@ -1,0 +1,27 @@
+/*
+Chess board
+*/
+.chess-table > ul{
+    width: 800px;
+    height: 800px;
+    padding: 0px;
+
+    list-style-type: none;
+
+    display: grid;
+    grid-template-columns: auto;
+}
+
+.chess-div{
+    font-size: 0px;
+
+    display: grid;
+    grid-template-columns: auto auto auto auto auto auto auto auto;
+}
+
+
+.pic{
+    position: absolute;
+    padding: 15px 0px 0px 17px;
+    scale: 1.2;
+}
