@@ -73,9 +73,10 @@ function moveBestPiece(from, to){
     chess_board = getBoard();
 }
 
+
 //minimax returns best score and best move for black pieces
 function minimax(depth,board, maximizingPlayer, alpha, beta){
-
+    
     //return a score if depth == 0
     if(depth == 0){
         return evaluateBoard(board)
@@ -84,6 +85,8 @@ function minimax(depth,board, maximizingPlayer, alpha, beta){
 
     //if AI turn
     if(maximizingPlayer){
+
+        //console.log("BLACK SWITCH")
 
         //declare the best score, move
         let bestScore = -Infinity;
@@ -95,7 +98,7 @@ function minimax(depth,board, maximizingPlayer, alpha, beta){
         //find all available moves
         let moves = availableMoves(black_pieces,false);
 
-        console.log("black moves", moves)
+        //console.log("black moves", moves)
 
         //go through object list
         for(let i = 0; i < moves.length; i++){
@@ -153,6 +156,9 @@ function minimax(depth,board, maximizingPlayer, alpha, beta){
     }
     //if player turn
     else {
+
+        console.log("WHITE SWITCH")
+
         //declare the best score
         let bestScore = Infinity;
 
@@ -163,7 +169,7 @@ function minimax(depth,board, maximizingPlayer, alpha, beta){
         
         moves = availableMoves(white_pieces,true);
 
-        console.log("white moves", moves)
+        //console.log("white moves", moves)
 
         //go through object list
         for(let i = 0; i < moves.length; i++){
@@ -185,7 +191,7 @@ function minimax(depth,board, maximizingPlayer, alpha, beta){
                 let score = minimax(depth - 1, board_copy, true,alpha,beta);
 
                 //print score for black piece
-                console.log("Score for white piece: ",score," move count: ",i)
+                //console.log("Score for white piece: ",score," move count: ",i)
 
                 //declare undone board
                 board_copy = undoMove(moves[i].To[j], moves[i].From,tiletxt2)
@@ -196,7 +202,7 @@ function minimax(depth,board, maximizingPlayer, alpha, beta){
                 }
 
                 //alpha beta prunning
-                beta = Math.min(beta,bestScore);
+                //beta = Math.min(beta,bestScore);
 
 
                 //print piece info
@@ -214,7 +220,7 @@ function minimax(depth,board, maximizingPlayer, alpha, beta){
 
 
                 //console.log("Beta val: ", beta);
-
+                black_pieces = []
             }
         }
         return bestScore
@@ -1270,7 +1276,7 @@ function evaluateBoard(chess_board){
     const pawnScore= [
         0  ,0  ,0   ,0   ,0   ,0   ,0  ,0,
         10, 10, 10, 10, 10, 10, 10, 10,
-        5, 5, 5, 5, 50, 50, 5, 5,
+        5, 5, 5, 5, 50, 100, 5, 5,
         0, 0, 0, 0, 0, 0, 0, 0,
         -5, -5, -5, -5, -5, -5, -5, -5,
         -10, -10, -10, -10, -10, -10, -10, -10,
