@@ -43,7 +43,7 @@ function paintTiles(){
 paintTiles();
 
 //store turn value
-let toggle = 1;
+let toggle = 3;
 
 //store player selection
 let selection = null;

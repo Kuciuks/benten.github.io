@@ -9,11 +9,14 @@ let all_piece_moves = [];
 let chess_board = []
 
 //control depth, ply
-let depth = 2
+let depth = 3
 
 //store alpha beta initial values
 let alpha = -Infinity;
 let beta = Infinity;
+
+
+let checkedBoardCount = 0;
 
 
 function InitiateAI(){
@@ -32,6 +35,8 @@ function InitiateAI(){
         let [value1, value2] = minimax(depth, checking_board, currentPLayer,alpha, beta)
         console.log("Minimax Value : ", value2, " Best move : ", value1);
         moveBestPiece(value1.from, value1.to);
+        console.log("Total checked boards: ", checkedBoardCount)
+        checkedBoardCount = 0;
         toggle++;
     }
 
@@ -76,7 +81,7 @@ function moveBestPiece(from, to){
 
 //minimax returns best score and best move for black pieces
 function minimax(depth,board, maximizingPlayer, alpha, beta){
-    
+
     //return a score if depth == 0
     if(depth == 0){
         return evaluateBoard(board)
@@ -113,22 +118,28 @@ function minimax(depth,board, maximizingPlayer, alpha, beta){
                 tiletxt = document.getElementById(moves[i].To[j]).innerText;
                 
                 //declare board copy, move the object to each location
-                board_copy = makeMove(moves[i].To[j], moves[i].From);
+                board = makeMove(moves[i].To[j], moves[i].From);
+
 
                 //get a score for the board
-                let score = minimax(depth - 1, board_copy, false,alpha,beta);
+                let score = minimax(depth - 1, board, false,alpha,beta);
                 
+                console.log("Move: ", moves[i].From, moves[i].To[j], " and resulting score: ", score);
                 //print score for black piece
                 //console.log("Score for black piece: ",score)
 
                 //declare undone board
-                board_copy = undoMove(moves[i].To[j], moves[i].From,tiletxt)
+                board = undoMove(moves[i].To[j], moves[i].From,tiletxt)
+                
 
                 //check if score is greater than bestScore
                 if(score > bestScore){
                     bestScore = score;
                     bestMove = {"from": moves[i].From, "to": moves[i].To[j]}
                 }
+                checkedBoardCount++;
+                
+                
 
                 //alpha beta prunning
                 //alpha = Math.max(alpha, bestScore);
@@ -157,13 +168,13 @@ function minimax(depth,board, maximizingPlayer, alpha, beta){
     //if player turn
     else {
 
-        console.log("WHITE SWITCH")
+        //console.log("WHITE SWITCH")
 
         //declare the best score
         let bestScore = Infinity;
 
         //store available moves moves
-        white_pieces = getWhitePiece(board_copy) 
+        white_pieces = getWhitePiece(board) 
 
         // uses the altered board and get all pieces for white
         
@@ -183,24 +194,23 @@ function minimax(depth,board, maximizingPlayer, alpha, beta){
                 tiletxt2 = document.getElementById(moves[i].To[j]).innerText;
                 
                 //declare board copy, move the object to each location
-                board_copy = makeMove(moves[i].To[j], moves[i].From);
+                board = makeMove(moves[i].To[j], moves[i].From);
 
                 //black_pieces=[]
 
                 //get a score for the board
-                let score = minimax(depth - 1, board_copy, true,alpha,beta);
+                let score = minimax(depth - 1, board, true,alpha,beta);
 
                 //print score for black piece
                 //console.log("Score for white piece: ",score," move count: ",i)
 
                 //declare undone board
-                board_copy = undoMove(moves[i].To[j], moves[i].From,tiletxt2)
+                board = undoMove(moves[i].To[j], moves[i].From,tiletxt2)
 
                 //check if score is greater than bestScore
                 if(score < bestScore){
                     bestScore = score;
                 }
-
                 //alpha beta prunning
                 //beta = Math.min(beta,bestScore);
 
@@ -236,6 +246,8 @@ function makeMove(to, from){
         document.getElementById(from).innerText = "";
 
         boardCopy = getBoard(); 
+        upload_Images()
+        paintTiles()
         return boardCopy;
     }
 }
@@ -248,6 +260,8 @@ function undoMove(to, from, txt){
     document.getElementById(to).innerText = txt
     
     boardCopy = getBoard()
+    upload_Images()
+    paintTiles()
     return boardCopy;
 }
 
