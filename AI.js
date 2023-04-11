@@ -78,18 +78,21 @@ function moveBestPiece(from, to){
     chess_board = getBoard();
 }
 
+let blackTileMoved = [];
+let whiteTileMoved = [];
 
 //minimax returns best score and best move for black pieces
 function minimax(depth,board, maximizingPlayer, alpha, beta){
 
     //return a score if depth == 0
     if(depth == 0){
+        //board = chess_board;
         return evaluateBoard(board)
-
     }
 
     //if AI turn
     if(maximizingPlayer){
+        white_pieces = []
 
         //console.log("BLACK SWITCH")
 
@@ -117,6 +120,8 @@ function minimax(depth,board, maximizingPlayer, alpha, beta){
                 //store current tile inner text
                 tiletxt = document.getElementById(moves[i].To[j]).innerText;
                 
+                //blackTileMoved.push(document.getElementById(moves[i].To[j]))
+
                 //declare board copy, move the object to each location
                 board = makeMove(moves[i].To[j], moves[i].From);
 
@@ -136,6 +141,8 @@ function minimax(depth,board, maximizingPlayer, alpha, beta){
                 if(score > bestScore){
                     bestScore = score;
                     bestMove = {"from": moves[i].From, "to": moves[i].To[j]}
+                    black_pieces = [];
+                    alpha = bestScore;
                 }
                 checkedBoardCount++;
                 
@@ -144,8 +151,9 @@ function minimax(depth,board, maximizingPlayer, alpha, beta){
                 //alpha beta prunning
                 //alpha = Math.max(alpha, bestScore);
                 //if(beta <= alpha){
+                //    console.log("Break");
                 //    break;
-                //}
+                //}//
 
                 //print piece info
                 //console.log("___ Start of search _________________________BLACK",
@@ -159,7 +167,6 @@ function minimax(depth,board, maximizingPlayer, alpha, beta){
                 //"\n",
                 //"\n",
                 //"___ End of search");
-                white_pieces = []
             }
         }
         return [bestMove, bestScore]
@@ -168,6 +175,7 @@ function minimax(depth,board, maximizingPlayer, alpha, beta){
     //if player turn
     else {
 
+        black_pieces = []
         //console.log("WHITE SWITCH")
 
         //declare the best score
@@ -210,11 +218,15 @@ function minimax(depth,board, maximizingPlayer, alpha, beta){
                 //check if score is greater than bestScore
                 if(score < bestScore){
                     bestScore = score;
+                    beta = bestScore;
                 }
                 //alpha beta prunning
                 //beta = Math.min(beta,bestScore);
 
-
+                //if(beta <= alpha){
+                //    console.log("Break");
+                ////    break;
+                //}
                 //print piece info
                 //console.log("___ Start of search _________________________WHITE",
                 //"\n",
@@ -230,7 +242,6 @@ function minimax(depth,board, maximizingPlayer, alpha, beta){
 
 
                 //console.log("Beta val: ", beta);
-                black_pieces = []
             }
         }
         return bestScore
@@ -1223,7 +1234,12 @@ function availableMoves(pieces,player){
         //check and update valid move board
         store_possible_tile_moves = checkValid(store_possible_tile_moves,player);
         obj = {"From":store_chosen_tile,"To":store_possible_tile_moves}
+
         all_piece_moves.push(obj);
+
+        if(obj.To.length == 0){
+            all_piece_moves.pop(obj);
+        }
 
     })
     return all_piece_moves;
@@ -1250,12 +1266,14 @@ function checkValid(tile,player){
     switch(player){
         case true:
             tile.forEach( tile => {
+
                 if(document.getElementById(tile).innerText == "" || document.getElementById(tile).innerText[0] == "B"){
                     
                    
                     valid.push(tile)
                     document.getElementById(tile).style.backgroundColor = "green";
                 }
+                
             })
 
             return valid;
