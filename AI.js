@@ -9,7 +9,7 @@ let all_piece_moves = [];
 let chess_board = []
 
 //control depth, ply
-let depth = 4
+let depth = 3
 
 //store alpha beta initial values
 let alpha = -Infinity;
@@ -37,6 +37,7 @@ function InitiateAI(){
         moveBestPiece(value1.from, value1.to);
         console.log("Total checked boards: ", checkedBoardCount)
         checkedBoardCount = 0;
+        console.log(pieceNameMemAI,"ALL MOVE PIECE NAMES")
         toggle++;
     }
 
@@ -80,7 +81,7 @@ function moveBestPiece(from, to){
 
 let pieceNameMemAI = [];
 let pieceNameMemHU = [];
-
+let count = 0;
 //minimax returns best score and best move for black pieces
 function minimax(depth,board, maximizingPlayer, alpha, beta){
 
@@ -102,33 +103,35 @@ function minimax(depth,board, maximizingPlayer, alpha, beta){
 
         //store available moves 
         black_pieces = getBlackPiece(board);
-
+        
         //find all available moves
         let moves = availableMoves(black_pieces,false);
-
+        console.log(moves)
+        console.log(black_pieces)
         //console.log("black moves", moves)
 
         //go through object list
         for(let i = 0; i < moves.length; i++){
-            //console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@   Piece count:  ",i,)
+            //console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@   Piece count:  ",i,)
             
 
             //take object and measure how many moves can it make
             for(let j =0; j < moves[i].To.length; j++){
                 //console.log("Moving ", document.getElementById(moves[i].From).innerText, " from ", document.getElementById(moves[i].From).id, " to ", document.getElementById(moves[i].To[j]).id);
-                
+                //count++;
+                //console.log(count, " MOVE COUNT");  
                 //store current tile inner text
                 tiletxt = document.getElementById(moves[i].To[j]).innerText;
-                //blackTileMoved.push(document.getElementById(moves[i].To[j]))
+                //console.log(tiletxt, " TILE TXT")
+                pieceNameMemAI.push({ "FROM": moves[i].From, "fromNAME": document.getElementById(moves[i].From).innerText, "TO": moves[i].To[j], "toNAME": document.getElementById(moves[i].To[j]).innerText, "PLAYER": maximizingPlayer});
 
                 //declare board copy, move the object to each location
                 board = makeMove(moves[i].To[j], moves[i].From);
 
-
                 //get a score for the board
                 let score = minimax(depth - 1, board, false,alpha,beta);
                 
-                console.log("Move: ", moves[i].From, moves[i].To[j], " and resulting score: ", score, " B");
+                //console.log("Move: ", moves[i].From, moves[i].To[j], " and resulting score: ", score, " B");
                 //print score for black piece
                 //console.log("Score for black piece: ",score)
 
@@ -141,7 +144,7 @@ function minimax(depth,board, maximizingPlayer, alpha, beta){
                 }
                 checkedBoardCount++;
                 //declare undone board
-                board = undoMove(moves[i].To[j], moves[i].From,tiletxt)
+                board = undoMove(maximizingPlayer)
                 
 
             }
@@ -167,6 +170,8 @@ function minimax(depth,board, maximizingPlayer, alpha, beta){
 
         //console.log("white moves", moves)
 
+        console.log(moves)
+        console.log(white_pieces)
         //go through object list
         for(let i = 0; i < moves.length; i++){
            // console.log("Piece count:  ",i,)
@@ -177,20 +182,24 @@ function minimax(depth,board, maximizingPlayer, alpha, beta){
                 
                 //store current tile inner text
                 tiletxt2 = document.getElementById(moves[i].To[j]).innerText;
+
+                pieceNameMemHU.push({ "FROM": moves[i].From, "fromNAME": document.getElementById(moves[i].From).innerText, "TO": moves[i].To[j], "toNAME": document.getElementById(moves[i].To[j]).innerText, "PLAYER": maximizingPlayer});
+
                 //declare board copy, move the object to each location
                 board = makeMove(moves[i].To[j], moves[i].From);
                 //black_pieces=[]
-
+                
                 //get a score for the board
                 let score = minimax(depth - 1, board, true,alpha,beta);
 
+                //console.log(moves);
                 //let evaldScore = score[1];
 
                 if(typeof(score) == "object"){
                     score = score[1];
                 }
 
-                console.log("Move: ", moves[i].From, moves[i].To[j], " and resulting score: ", score, " W");
+                //console.log("Move: ", moves[i].From, moves[i].To[j], " and resulting score: ", score, " W");
                 //print score for black piece
                 //console.log("Score for white piece: ",score," move count: ",i)
 
@@ -200,7 +209,7 @@ function minimax(depth,board, maximizingPlayer, alpha, beta){
                     beta = bestScore;
                 }
                 //declare undone board
-                board = undoMove(moves[i].To[j], moves[i].From,tiletxt2)
+                board = undoMove(maximizingPlayer)
 
             }
         }
@@ -208,9 +217,13 @@ function minimax(depth,board, maximizingPlayer, alpha, beta){
     }
 }
 
+let moveCount = 0;
+let moveStorage = [];
 //make move from - to, returns an altered board
 function makeMove(to, from){
     if(to !== null){
+        //moveStorage.push({to,from});
+        //moveCount++;
 
         document.getElementById(to).innerText = document.getElementById(from).innerText;
 
@@ -224,37 +237,62 @@ function makeMove(to, from){
 }
 
 //undoes move from to - from, returns board minues previous move
-function undoMove(to, from, txt){
+function undoMove(player){
 
-    document.getElementById(from).innerText = document.getElementById(to).innerText;
-    
-    document.getElementById(to).innerText = txt;
-    
-    boardCopy = getBoard()
-    upload_Images()
-    paintTiles()
-    return boardCopy;
+    if(player == true){
+
+        document.getElementById(pieceNameMemAI[pieceNameMemAI.length-1].FROM).innerText = pieceNameMemAI[pieceNameMemAI.length-1].fromNAME;
+
+        document.getElementById(pieceNameMemAI[pieceNameMemAI.length-1].TO).innerText = pieceNameMemAI[pieceNameMemAI.length-1].toNAME;
+        pieceNameMemAI.pop(pieceNameMemAI[pieceNameMemAI.length-1])
+        boardCopy = getBoard()
+        upload_Images()
+        paintTiles()
+        return boardCopy;
+    }
+    if(player == false){
+
+        document.getElementById(pieceNameMemHU[pieceNameMemHU.length-1].FROM).innerText = pieceNameMemHU[pieceNameMemHU.length-1].fromNAME;
+        
+        document.getElementById(pieceNameMemHU[pieceNameMemHU.length-1].TO).innerText = pieceNameMemHU[pieceNameMemHU.length-1].toNAME;
+        pieceNameMemHU.pop(pieceNameMemHU[pieceNameMemHU.length-1])
+        boardCopy = getBoard()
+        upload_Images()
+        paintTiles()
+        return boardCopy;
+    }
 }
 
 //search through all of the black pieces and find possible moves, add them to array and before returning the array run through checkValid function to remove all illegal moves
 function availableMoves(pieces,player){
     all_piece_moves = []
     
-    if(player == true){
-        pieces.forEach(tile => {
-            if(document.getElementById(tile).innerText[0] == ""){
-                pieces.pop(tile);
-            }
-        })
-    }
-    else{
-        pieces.forEach(tile => {
-            if(document.getElementById(tile).innerText[0] == ""){
-                pieces.pop(tile);
-            }
-        })
-    }
+    //if(player == true){
+    ///    pieces.forEach(tile => {
+    //        if(document.getElementById(tile).innerText[0] == ""){
+    //            pieces.pop(tile);
+    //        }
+    //    })
+    //}
+    //else{
+    //    pieces.forEach(tile => {
+    ///        if(document.getElementById(tile).innerText[0] == ""){
+    //            pieces.pop(tile);
+    //        }
+    //    })
+    //}
     pieces.forEach(tile =>{
+
+        if(player == true){
+            if(document.getElementById(tile).innerText[0] == ""){
+                pieces.pop(tile);
+            }
+        }else{
+            if(document.getElementById(tile).innerText[0] == ""){
+                pieces.pop(tile);
+            }
+        }
+
         let obj = {}
         let store_chosen_tile = [];
         let store_possible_tile_moves = []
@@ -277,11 +315,11 @@ function availableMoves(pieces,player){
                         store_possible_tile_moves.push(document.getElementById(`${row+1}-${col}`).id);
                     }
         
-                    if(document.getElementById(`${row+1}-${col+1}`).innerText !== ""){
+                    if(document.getElementById(`${row+1}-${col+1}`).innerText[0] == "W"){
                         store_possible_tile_moves.push(document.getElementById(`${row+1}-${col+1}`).id);
                     }
                     
-                    if(document.getElementById(`${row+1}-${col-1}`).innerText !== ""){
+                    if(document.getElementById(`${row+1}-${col-1}`).innerText[0] == "W"){
                         store_possible_tile_moves.push(document.getElementById(`${row+1}-${col-1}`).id);
                     }
                 }
@@ -301,11 +339,11 @@ function availableMoves(pieces,player){
                         store_possible_tile_moves.push(document.getElementById(`${row-1}-${col}`).id);
                     }
         
-                    if(document.getElementById(`${row-1}-${col-1}`).innerText !== ""){
+                    if(document.getElementById(`${row-1}-${col-1}`).innerText[0] == "B"){
                         store_possible_tile_moves.push(document.getElementById(`${row-1}-${col-1}`).id);
                     }
                     
-                    if(document.getElementById(`${row-1}-${col+1}`).innerText !== ""){
+                    if(document.getElementById(`${row-1}-${col+1}`).innerText[0] == "B"){
                         store_possible_tile_moves.push(document.getElementById(`${row-1}-${col-1}`).id);
                     }
                 }
@@ -505,13 +543,14 @@ function availableMoves(pieces,player){
                     try{
 
                         msg = "";
-                        if(document.getElementById(`${row-i}-${col-i}`).innerText[0] == "B"){
-                            i=9
+                        if(document.getElementById(`${row-i}-${col-i}`).innerText == "" || document.getElementById(`${row-i}-${col-i}`).innerText[0] == "B"){
+                            store_possible_tile_moves.push(document.getElementById(`${row-i}-${col-i}`).id);
+                            
                         }
-                        store_possible_tile_moves.push(document.getElementById(`${row-i}-${col-i}`).id);
                         if(document.getElementById(`${row-i}-${col-i}`).innerText[0] == "W"){
                             i=9
                         }
+                        console.log(i,"COUNT _________-")
 
                     }
                     catch(err){
@@ -524,11 +563,11 @@ function availableMoves(pieces,player){
                 for(j = 1; j < 9; j++){
 
                     try{
-                        if(document.getElementById(`${row-j}-${col+j}`).innerText[0] == "B"){
-                            j=9
+                        if(document.getElementById(`${row-j}-${col+j}`).innerText == "" || document.getElementById(`${row-j}-${col+j}`).innerText[0] == "B"){
+                            store_possible_tile_moves.push(document.getElementById(`${row-j}-${col+j}`).id);
+                            
                         }
                         msg = "";
-                        store_possible_tile_moves.push(document.getElementById(`${row-j}-${col+j}`).id);
                         if(document.getElementById(`${row-j}-${col+j}`).innerText[0] == "W"){
                             j=9
                         }
@@ -544,11 +583,11 @@ function availableMoves(pieces,player){
                 for(k = 1; k < 9; k++){
 
                     try{
-                        if(document.getElementById(`${row+k}-${col-k}`).innerText[0] == "B"){
-                            k=9
+                        if(document.getElementById(`${row+k}-${col-k}`).innerText == "" || document.getElementById(`${row+k}-${col-k}`).innerText[0] == "B"){
+                            store_possible_tile_moves.push(document.getElementById(`${row+k}-${col-k}`).id);
+                            
                         }
                         msg = "";
-                        store_possible_tile_moves.push(document.getElementById(`${row+k}-${col-k}`).id);
                         if(document.getElementById(`${row+k}-${col-k}`).innerText[0] == "W"){
                             k=9
                         }
@@ -563,11 +602,11 @@ function availableMoves(pieces,player){
                 for(l = 1; l < 9; l++){
 
                     try{
-                        if(document.getElementById(`${row+l}-${col+l}`).innerText[0] == "B"){
-                            l=9
+                        if(document.getElementById(`${row+l}-${col+l}`).innerText == "" || document.getElementById(`${row+l}-${col+l}`).innerText[0] == "B"){
+                            store_possible_tile_moves.push(document.getElementById(`${row+l}-${col+l}`).id);
+                            
                         }
                         msg = "";
-                        store_possible_tile_moves.push(document.getElementById(`${row+l}-${col+l}`).id);
                         if(document.getElementById(`${row+l}-${col+l}`).innerText[0] == "W"){
                             l=9
                         }
@@ -580,6 +619,7 @@ function availableMoves(pieces,player){
                 }
 
 
+
             
 
             break;
@@ -590,13 +630,14 @@ function availableMoves(pieces,player){
                     try{
 
                         msg = "";
-                        if(document.getElementById(`${row-i}-${col-i}`).innerText[0] == "B"){
-                            i=9
+                        if(document.getElementById(`${row-i}-${col-i}`).innerText == "" || document.getElementById(`${row-i}-${col-i}`).innerText[0] == "B"){
+                            store_possible_tile_moves.push(document.getElementById(`${row-i}-${col-i}`).id);
+                            
                         }
-                        store_possible_tile_moves.push(document.getElementById(`${row-i}-${col-i}`).id);
                         if(document.getElementById(`${row-i}-${col-i}`).innerText[0] == "W"){
                             i=9
                         }
+                        console.log(i,"COUNT _________-")
 
                     }
                     catch(err){
@@ -609,11 +650,11 @@ function availableMoves(pieces,player){
                 for(j = 1; j < 9; j++){
 
                     try{
-                        if(document.getElementById(`${row-j}-${col+j}`).innerText[0] == "B"){
-                            j=9
+                        if(document.getElementById(`${row-j}-${col+j}`).innerText == "" || document.getElementById(`${row-j}-${col+j}`).innerText[0] == "B"){
+                            store_possible_tile_moves.push(document.getElementById(`${row-j}-${col+j}`).id);
+                            
                         }
                         msg = "";
-                        store_possible_tile_moves.push(document.getElementById(`${row-j}-${col+j}`).id);
                         if(document.getElementById(`${row-j}-${col+j}`).innerText[0] == "W"){
                             j=9
                         }
@@ -629,11 +670,11 @@ function availableMoves(pieces,player){
                 for(k = 1; k < 9; k++){
 
                     try{
-                        if(document.getElementById(`${row+k}-${col-k}`).innerText[0] == "B"){
-                            k=9
+                        if(document.getElementById(`${row+k}-${col-k}`).innerText == "" || document.getElementById(`${row+k}-${col-k}`).innerText[0] == "B"){
+                            store_possible_tile_moves.push(document.getElementById(`${row+k}-${col-k}`).id);
+                            
                         }
                         msg = "";
-                        store_possible_tile_moves.push(document.getElementById(`${row+k}-${col-k}`).id);
                         if(document.getElementById(`${row+k}-${col-k}`).innerText[0] == "W"){
                             k=9
                         }
@@ -648,11 +689,11 @@ function availableMoves(pieces,player){
                 for(l = 1; l < 9; l++){
 
                     try{
-                        if(document.getElementById(`${row+l}-${col+l}`).innerText[0] == "B"){
-                            l=9
+                        if(document.getElementById(`${row+l}-${col+l}`).innerText == "" || document.getElementById(`${row+l}-${col+l}`).innerText[0] == "B"){
+                            store_possible_tile_moves.push(document.getElementById(`${row+l}-${col+l}`).id);
+                            
                         }
                         msg = "";
-                        store_possible_tile_moves.push(document.getElementById(`${row+l}-${col+l}`).id);
                         if(document.getElementById(`${row+l}-${col+l}`).innerText[0] == "W"){
                             l=9
                         }
@@ -1270,7 +1311,7 @@ function evaluateBoard(chess_board){
         10, 10, 10, 10, 0, 0, 10, 10,
         5, 5, 5, 5, 50, 0, 0, 5,
         0, 0, 0, 0, 0, 0, 0, 0,
-        -5, -5, -5, -5, -5, -0, 0, -5,
+        -5, -5, -5, -5, -5, -10, 0, -5,
         -10, -10, -10, -10, 0, 0, -10, -10,
         -15, -15, -15, -15, -15, -15, -15, -15,
         0  ,0  ,0   ,0   ,0   ,0   ,0  ,0
