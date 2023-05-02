@@ -33,11 +33,11 @@ function InitiateAI(){
     //if player turn Black then activate minimax
     if(currentPLayer == true){
         let [value1, value2] = minimax(depth, checking_board, currentPLayer,alpha, beta)
-        console.log("Minimax Value : ", value2, " Best move : ", value1);
+        //console.log("Minimax Value : ", value2, " Best move : ", value1);
         moveBestPiece(value1.from, value1.to);
-        console.log("Total checked boards: ", checkedBoardCount)
+        //console.log("Total checked boards: ", checkedBoardCount)
         checkedBoardCount = 0;
-        console.log(pieceNameMemAI,"ALL MOVE PIECE NAMES")
+        //console.log(pieceNameMemAI,"ALL MOVE PIECE NAMES")
         toggle++;
     }
 
@@ -88,6 +88,7 @@ function minimax(depth,board, maximizingPlayer, alpha, beta){
     //return a score if depth == 0
     if(depth == 0){
         //board = chess_board;
+        console.log("_______________________________")
         return evaluateBoard(board)
     }
 
@@ -106,8 +107,7 @@ function minimax(depth,board, maximizingPlayer, alpha, beta){
         
         //find all available moves
         let moves = availableMoves(black_pieces,false);
-        console.log(moves)
-        console.log(black_pieces)
+        //console.log(black_pieces,"__________ BLACK PIECES")
         //console.log("black moves", moves)
 
         //go through object list
@@ -116,38 +116,46 @@ function minimax(depth,board, maximizingPlayer, alpha, beta){
             
 
             //take object and measure how many moves can it make
-            for(let j =0; j < moves[i].To.length; j++){
-                //console.log("Moving ", document.getElementById(moves[i].From).innerText, " from ", document.getElementById(moves[i].From).id, " to ", document.getElementById(moves[i].To[j]).id);
-                //count++;
-                //console.log(count, " MOVE COUNT");  
-                //store current tile inner text
-                tiletxt = document.getElementById(moves[i].To[j]).innerText;
-                //console.log(tiletxt, " TILE TXT")
-                pieceNameMemAI.push({ "FROM": moves[i].From, "fromNAME": document.getElementById(moves[i].From).innerText, "TO": moves[i].To[j], "toNAME": document.getElementById(moves[i].To[j]).innerText, "PLAYER": maximizingPlayer});
+            
+            try{
+                //take object and measure how many moves can it make
+                for(let j =0; j < moves[i].To.length; j++){
+                    //console.log("Moving ", document.getElementById(moves[i].From).innerText, " from ", document.getElementById(moves[i].From).id, " to ", document.getElementById(moves[i].To[j]).id);
+                    //count++;
+                    //console.log(count, " MOVE COUNT");  
+                    //store current tile inner text
+                    tiletxt = document.getElementById(moves[i].To[j]).innerText;
+                    //console.log(tiletxt, " TILE TXT")
+                    
+                    console.log(moves,"_________ BLACK MOVES")
+                    pieceNameMemAI.push({ "FROM": moves[i].From, "fromNAME": document.getElementById(moves[i].From).innerText, "TO": moves[i].To[j], "toNAME": document.getElementById(moves[i].To[j]).innerText, "PLAYER": maximizingPlayer});
 
-                //declare board copy, move the object to each location
-                board = makeMove(moves[i].To[j], moves[i].From);
+                    //declare board copy, move the object to each location  
+                    board = makeMove(moves[i].To[j], moves[i].From);
+                    
+                    //get a score for the board
+                    let score = minimax(depth - 1, board, false,alpha,beta);
+                    
+                    //console.log("Move: ", moves[i].From, moves[i].To[j], " and resulting score: ", score, " B");
+                    //print score for black piece
+                    //console.log("Score for black piece: ",score)
 
-                //get a score for the board
-                let score = minimax(depth - 1, board, false,alpha,beta);
-                
-                //console.log("Move: ", moves[i].From, moves[i].To[j], " and resulting score: ", score, " B");
-                //print score for black piece
-                //console.log("Score for black piece: ",score)
+                    //console.log(score,"---- Black Score")
+                    //check if score is greater than bestScore
+                    if(score > bestScore){
+                        bestScore = score;
+                        bestMove = {"from": moves[i].From, "to": moves[i].To[j]}
+                        black_pieces = [];
+                        alpha = bestScore;
+                    }
+                    checkedBoardCount++;
+                    //declare undone board
+                    board = undoMove(maximizingPlayer)
+                    
 
-                //check if score is greater than bestScore
-                if(score > bestScore){
-                    bestScore = score;
-                    bestMove = {"from": moves[i].From, "to": moves[i].To[j]}
-                    black_pieces = [];
-                    alpha = bestScore;
                 }
-                checkedBoardCount++;
-                //declare undone board
-                board = undoMove(maximizingPlayer)
-                
-
             }
+            catch{} 
         }
         return [bestMove, bestScore]
         
@@ -168,50 +176,54 @@ function minimax(depth,board, maximizingPlayer, alpha, beta){
         
         moves = availableMoves(white_pieces,true);
 
+        //console.log(white_pieces,"__________ WHITE PIECES")
         //console.log("white moves", moves)
 
-        console.log(moves)
-        console.log(white_pieces)
         //go through object list
         for(let i = 0; i < moves.length; i++){
            // console.log("Piece count:  ",i,)
 
             //take object and measure how many moves it can make
-            for(let j =0; j < moves[i].To.length; j++){
-                //console.log("Moving ", document.getElementById(moves[i].From).innerText, " from ", document.getElementById(moves[i].From).id, " to ", document.getElementById(moves[i].To[j]).id);
-                
-                //store current tile inner text
-                tiletxt2 = document.getElementById(moves[i].To[j]).innerText;
+            //try{
+                    
+                for(let j =0; j < moves[i].To.length; j++){
+                    //console.log("Moving ", document.getElementById(moves[i].From).innerText, " from ", document.getElementById(moves[i].From).id, " to ", document.getElementById(moves[i].To[j]).id);
+                    
+                    //store current tile inner text
+                    tiletxt2 = document.getElementById(moves[i].To[j]).innerText;
 
-                pieceNameMemHU.push({ "FROM": moves[i].From, "fromNAME": document.getElementById(moves[i].From).innerText, "TO": moves[i].To[j], "toNAME": document.getElementById(moves[i].To[j]).innerText, "PLAYER": maximizingPlayer});
+                    console.log(moves,"_________ WHITE MOVES")
+                    pieceNameMemHU.push({ "FROM": moves[i].From, "fromNAME": document.getElementById(moves[i].From).innerText, "TO": moves[i].To[j], "toNAME": document.getElementById(moves[i].To[j]).innerText, "PLAYER": maximizingPlayer});
 
-                //declare board copy, move the object to each location
-                board = makeMove(moves[i].To[j], moves[i].From);
-                //black_pieces=[]
-                
-                //get a score for the board
-                let score = minimax(depth - 1, board, true,alpha,beta);
+                    //declare board copy, move the object to each location
+                    board = makeMove(moves[i].To[j], moves[i].From);
+                    //black_pieces=[]
+                    
+                    //get a score for the board
+                    let score = minimax(depth - 1, board, true,alpha,beta);
 
-                //console.log(moves);
-                //let evaldScore = score[1];
+                    //console.log(moves);
+                    //let evaldScore = score[1];
 
-                if(typeof(score) == "object"){
-                    score = score[1];
+                    if(typeof(score) == "object"){
+                        score = score[1];
+                    }
+                    //console.log(score,"---- White Score")
+                    //console.log("Move: ", moves[i].From, moves[i].To[j], " and resulting score: ", score, " W");
+                    //print score for black piece
+                    //console.log("Score for white piece: ",score," move count: ",i)
+
+                    //check if score is greater than bestScore
+                    if(score < bestScore){
+                        bestScore = score;
+                        beta = bestScore;
+                    }
+                    //declare undone board
+                    board = undoMove(maximizingPlayer)
+
                 }
-
-                //console.log("Move: ", moves[i].From, moves[i].To[j], " and resulting score: ", score, " W");
-                //print score for black piece
-                //console.log("Score for white piece: ",score," move count: ",i)
-
-                //check if score is greater than bestScore
-                if(score < bestScore){
-                    bestScore = score;
-                    beta = bestScore;
-                }
-                //declare undone board
-                board = undoMove(maximizingPlayer)
-
-            }
+            //}
+            //catch{}
         }
         return bestScore
     }
@@ -543,14 +555,14 @@ function availableMoves(pieces,player){
                     try{
 
                         msg = "";
-                        if(document.getElementById(`${row-i}-${col-i}`).innerText == "" || document.getElementById(`${row-i}-${col-i}`).innerText[0] == "B"){
+                        if(document.getElementById(`${row-i}-${col-i}`).innerText == "" || document.getElementById(`${row-i}-${col-i}`).innerText[0] == "W"){
                             store_possible_tile_moves.push(document.getElementById(`${row-i}-${col-i}`).id);
                             
                         }
-                        if(document.getElementById(`${row-i}-${col-i}`).innerText[0] == "W"){
+                        if(document.getElementById(`${row-i}-${col-i}`).innerText[0] == "B"){
                             i=9
                         }
-                        console.log(i,"COUNT _________-")
+                        //console.log(i,"COUNT _________-")
 
                     }
                     catch(err){
@@ -563,12 +575,12 @@ function availableMoves(pieces,player){
                 for(j = 1; j < 9; j++){
 
                     try{
-                        if(document.getElementById(`${row-j}-${col+j}`).innerText == "" || document.getElementById(`${row-j}-${col+j}`).innerText[0] == "B"){
+                        if(document.getElementById(`${row-j}-${col+j}`).innerText == "" || document.getElementById(`${row-j}-${col+j}`).innerText[0] == "W"){
                             store_possible_tile_moves.push(document.getElementById(`${row-j}-${col+j}`).id);
                             
                         }
                         msg = "";
-                        if(document.getElementById(`${row-j}-${col+j}`).innerText[0] == "W"){
+                        if(document.getElementById(`${row-j}-${col+j}`).innerText[0] == "B"){
                             j=9
                         }
 
@@ -583,12 +595,12 @@ function availableMoves(pieces,player){
                 for(k = 1; k < 9; k++){
 
                     try{
-                        if(document.getElementById(`${row+k}-${col-k}`).innerText == "" || document.getElementById(`${row+k}-${col-k}`).innerText[0] == "B"){
+                        if(document.getElementById(`${row+k}-${col-k}`).innerText == "" || document.getElementById(`${row+k}-${col-k}`).innerText[0] == "W"){
                             store_possible_tile_moves.push(document.getElementById(`${row+k}-${col-k}`).id);
                             
                         }
                         msg = "";
-                        if(document.getElementById(`${row+k}-${col-k}`).innerText[0] == "W"){
+                        if(document.getElementById(`${row+k}-${col-k}`).innerText[0] == "B"){
                             k=9
                         }
 
@@ -602,12 +614,12 @@ function availableMoves(pieces,player){
                 for(l = 1; l < 9; l++){
 
                     try{
-                        if(document.getElementById(`${row+l}-${col+l}`).innerText == "" || document.getElementById(`${row+l}-${col+l}`).innerText[0] == "B"){
+                        if(document.getElementById(`${row+l}-${col+l}`).innerText == "" || document.getElementById(`${row+l}-${col+l}`).innerText[0] == "W"){
                             store_possible_tile_moves.push(document.getElementById(`${row+l}-${col+l}`).id);
                             
                         }
                         msg = "";
-                        if(document.getElementById(`${row+l}-${col+l}`).innerText[0] == "W"){
+                        if(document.getElementById(`${row+l}-${col+l}`).innerText[0] == "B"){
                             l=9
                         }
 
@@ -637,7 +649,7 @@ function availableMoves(pieces,player){
                         if(document.getElementById(`${row-i}-${col-i}`).innerText[0] == "W"){
                             i=9
                         }
-                        console.log(i,"COUNT _________-")
+                        //console.log(i,"COUNT _________-")
 
                     }
                     catch(err){
